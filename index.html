@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Memory Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-pzRlCfdQ2umvGqIWt9h6/I3z2TeHJj/fFb3PJ16YcT5tm4+Fe7eaaqNpqCSxiu6WVehc88dF3FGfuYBJDmLsFw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="./styles.css">
+
+</head>
+<body>
+  <div id="score">Score: 0</div>
+  <div id="game-board"></div>
+
+  <script>
+    
+const symbols = [
+      '🐶', '🐱', '🐭', '🐹', '🐰', '🐻', '🐼', '🐨',
+    ];
+const cards = symbols.concat(symbols);
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    
+    function createCards() {
+      const gameBoard = document.getElementById('game-board');
+      shuffle(cards);
+      cards.forEach(function (symbol) {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        const symbolElement = document.createElement('span');
+        symbolElement.classList.add('symbol');
+        symbolElement.innerText = symbol;
+        card.appendChild(symbolElement);
+        card.addEventListener('click', flipCard);
+        gameBoard.appendChild(card);
+      });
+    }
+
+    
+    let flippedCards = [];
+    let lockBoard = false;
+    let score = 0;
+
+    
+    function flipCard() {
+      if (lockBoard) return;
+      if (this === flippedCards[0]) return;
+
+      this.classList.add('flipped');
+      flippedCards.push(this);
+
+      if (flippedCards.length === 2) {
+        lockBoard = true;
+        setTimeout(checkMatch, 1000);
+      }
+    }
+
+    
+    function checkMatch() {
+      const symbol1 = flippedCards[0].querySelector('.symbol');
+      const symbol2 = flippedCards[1].querySelector('.symbol');
+
+      if (symbol1.innerText === symbol2.innerText) {
+        flippedCards.forEach(function (card) {
+          card.removeEventListener('click', flipCard);
+          card.classList.add('matched');
+        });
+        score += 10; 
+      } else {
+        flippedCards.forEach(function (card) {
+          card.classList.remove('flipped');
+        });
+        score -= 5; 
+      }
+
+      
+      document.getElementById('score').innerText = 'Score: ' + score;
+
+      flippedCards = [];
+      lockBoard = false;
+    }
+
+
+    
+    createCards();
+  </script>
+</body>
+
+</html>
